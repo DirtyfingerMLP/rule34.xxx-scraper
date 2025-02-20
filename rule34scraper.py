@@ -6,6 +6,8 @@ import re
 import csv
 from datetime import datetime
 
+VERSION = "1.1.0"  # Update as necessary
+
 def get_soup(url):
     headers = {'User-Agent': 'Mozilla/5.0'}
     response = requests.get(url, headers=headers)
@@ -36,10 +38,11 @@ def get_post_date(soup):
 def get_media_page_data(url):
     soup = get_soup(url)
     if not soup:
-        return None, [], [], [], [], [], "Unknown"
+        return None, None, [], [], [], [], [], "Unknown"
     
     video_tag = soup.select_one("video source")
-    video_url = video_tag['src'] if video_tag else None
+    image_tag = soup.select_one("#image")
+    media_url = video_tag['src'] if video_tag else (image_tag['src'] if image_tag else None)
     
     copyright_tags = extract_tags(soup, 'copyright')
     character_tags = extract_tags(soup, 'character')
@@ -48,7 +51,7 @@ def get_media_page_data(url):
     meta_tags = extract_tags(soup, 'metadata')
     post_date = get_post_date(soup)
     
-    return video_url, copyright_tags, character_tags, artist_tags, general_tags, meta_tags, post_date
+    return media_url, "video" if video_tag else "image" if image_tag else None, copyright_tags, character_tags, artist_tags, general_tags, meta_tags, post_date
 
 def sanitize_filename(filename):
     return re.sub(r'[\/:*?"<>|]', '_', filename)
@@ -61,8 +64,12 @@ def file_exists(download_dir, post_id):
 
 def download_file(url, filename, download_dir):
     file_path = os.path.join(download_dir, filename)
+    headers = {
+        'User-Agent': 'Mozilla/5.0',
+        'Referer': 'https://rule34.xxx/'  # Ensure the referer is set correctly
+    }
     try:
-        response = requests.get(url, stream=True, timeout=30)  # Added timeout
+        response = requests.get(url, headers=headers, stream=True, timeout=30)
         if response.status_code == 200:
             with open(file_path, 'wb') as file:
                 for chunk in response.iter_content(chunk_size=8192):
@@ -72,11 +79,19 @@ def download_file(url, filename, download_dir):
     except requests.exceptions.RequestException as e:
         print(f"Download failed for {filename}: {e}")
 
+
 def construct_gallery_url(tags, page=1):
     base_url = "https://rule34.xxx/index.php?page=post&s=list&tags="
     return f"{base_url}{'+'.join(tags)}&pid={(page - 1) * 42}"
 
+def write_to_csv(file, results):
+    with open(file, 'w', newline='', encoding='utf-8') as f:
+        writer = csv.writer(f, delimiter='|')
+        writer.writerow(["post_id", "post_date", "download_date", "Copyright", "Characters", "Artist", "General", "Meta", "Filename"])
+        writer.writerows(results)
+
 def main():
+
     parser = argparse.ArgumentParser()
     parser.add_argument('tags', nargs='+', help='Tags')
     parser.add_argument('-f', '--file', help='Output file', default='results.csv')
@@ -101,8 +116,6 @@ def main():
         if not posts:
             break
         
-        posts.reverse()  # Reverse order to get newest posts first
-        
         for post in posts:
             if fetch_count >= args.limit:
                 break
@@ -117,19 +130,19 @@ def main():
             
             if duplicate:
                 print(f"Skipping {post_id}")
-                results.append([post_id, "", "skipped", "", "","", "", "", ""])
+                results.append([post_id, "", "skipped", "", "", "", "", "", ""])
             else:
-                video_url, copyright_tags, character_tags, artist_tags, general_tags, meta_tags, post_date = get_media_page_data(full_url)
+                media_url, media_type, copyright_tags, character_tags, artist_tags, general_tags, meta_tags, post_date = get_media_page_data(full_url)
                 
-                if not video_url:
+                if not media_url:
                     print(f"No media found for {post_id}, skipping.")
                     continue
                 
-                file_extension = os.path.splitext(video_url.split('?')[0])[-1]
+                file_extension = os.path.splitext(media_url.split('?')[0])[-1]
                 filename = sanitize_filename(f"{post_id} [{' '.join(tag.replace(' ', '_') for tag in args.tags)}] {' '.join(copyright_tags)} # {' '.join(character_tags)} # {' '.join(artist_tags)}{file_extension}")
                 
                 print(f"Downloading {post_id}")
-                download_file(video_url, filename, args.download_dir)
+                download_file(media_url, filename, args.download_dir)
                 download_date = datetime.now().strftime("%Y-%m-%d %H:%M:%S")      
                 results.append([
                     post_id, 
@@ -144,18 +157,9 @@ def main():
                 ])
               
             fetch_count += 1
+            write_to_csv(args.file, results)
         
         page += 1
-    
-    with open(args.file, 'w', newline='', encoding='utf-8') as f:
-        writer = csv.writer(f, delimiter='|')
-        writer.writerow(["post_id", "post_date", "download_date", "Copyright", "Characters", "Artist", "General", "Meta", "Filename"])
-        writer.writerows(results)
 
 if __name__ == "__main__":
     main()
-
-
-# todo
-# allow image downloads
-# update csv every fetch 
