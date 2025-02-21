@@ -1,4 +1,6 @@
-This is a simple command-line tool to batch download images and videos from rule34.xxx .
+## Introduction
+This is a simple command-line tool to batch download images and videos from [rule34.xxx](https://rule34.xxx/).
+
 It was written with the intent of getting proper, descriptive filenames from the site 
 instead of something like 234524664.mp4 when you use jdownloader or other dl-managers.
 
