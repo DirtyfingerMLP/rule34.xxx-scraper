@@ -98,7 +98,7 @@ def write_to_csv(file, results):
 def main():
     parser = argparse.ArgumentParser()
     parser.add_argument('tags', nargs='+', help='Tags')
-    parser.add_argument('-f', '--file', help='Output file')
+    parser.add_argument('-c', '--csv', help='Output file')
     parser.add_argument('-d', '--download_dir', help='Directory to save files')
     parser.add_argument('-l', '--limit', type=int, default=42, help='Limit of results')
     parser.add_argument('-s', '--start', type=int, default=0, help='Starting pid for pagination')
@@ -151,7 +151,7 @@ def main():
                     logger.warning(f"No media found for {post_id}, skipping.")
                     continue
                 file_extension = os.path.splitext(media_url.split('?')[0])[-1]
-                filename = sanitize_filename(f"{post_id} [{' '.join(args.tags)}] {' '.join(copyright_tags)} # {' '.join(character_tags)} # {' '.join(artist_tags)}{file_extension}")
+                filename = sanitize_filename(f"{post_id} [{' '.join(args.tags)}] {' '.join(copyright_tags)}#{' '.join(character_tags)}#{' '.join(artist_tags)}{file_extension}")
                 print(f"Downloading {filename}")
                 download_file(media_url, filename, args.download_dir)
                 download_date = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
