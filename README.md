@@ -21,27 +21,27 @@ default naming convention isn't to your liking.
 
 You want the first page of results from the magnificent pmv-editor dirtyfinger:
 
-    python .\rule34scraper.py dirtyfinger
+    python .\rule34xxx-scraper.py dirtyfinger
 
 You want the latest 10 uploads from top-artist rexyvexi:
 
-    python .\rule34scraper.py -l 10 rexyvexi
+    python .\rule34xxx-scraper.py -l 10 rexyvexi
 
 Download everything involving sex from legend of korra, but without the disgusting stuff:
     
-    python .\rule34scraper.py -l 2000 "the_legend_of_korra sex" "-vore -guro -scat -torture" 
+    python .\rule34xxx-scraper.py -l 2000 "the_legend_of_korra sex" "-vore -guro -scat -torture" 
 
 Start downloading but skip the first, newest 500 posts:
     
-    python .\rule34scraper.py -s 500 the_owl_house
+    python .\rule34xxx-scraper.py -s 500 the_owl_house
 
 You want to save the downloads in a specific directory:
     
-    python .\rule34scraper.py --download_dir "C:\Documents\Taxes\r34\clop" my_little_pony
+    python .\rule34xxx-scraper.py --download_dir "C:\Documents\Taxes\r34\clop" my_little_pony
 
 Custom name and location for the csv file
     
-    python .\rule34scraper.py -f "tags.csv" sesame_street
+    python .\rule34xxx-scraper.py -f "tags.csv" sesame_street
 
 ## INSTALLATION
 
@@ -66,7 +66,7 @@ This will install the following (nerd-stuff - ignore if not a coder):
 Note: You may need to use pip3 instead of pip on Mac if pip is linked to Python 2.x.
 
 ### Download the Script
-Just put the file rule34scraper.py into any folder. 
+Just put the file rule34xxx-scraper.py into any folder. 
 
 That's all.
 
@@ -97,7 +97,7 @@ tags                  Every word you type in that doesn't have a leading '-' wil
 
 Example:
 
-    python .\rule34scraper.py -d "happy sex" "equestria_girls show_accurate happy_sex"
+    python .\rule34xxx-scraper.py -d "happy sex" "equestria_girls show_accurate happy_sex"
 
 I recommend you test your search queries on the website itself first and then use the script.
 
