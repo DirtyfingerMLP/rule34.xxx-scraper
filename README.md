@@ -9,6 +9,8 @@ downloading duplicate files.
 With this script you can do that easily. You can even rename your downloaded files if my
 default naming convention isn't to your liking.
 
+It should work with any OS that can run python.
+
 ## Features:
 - simple syntax with sensible default values
 - auto-generates a sensible filename like this: POST_ID [search-tags] copyright_tags#character_tags#artist_tags.file_extension
