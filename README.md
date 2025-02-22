@@ -56,6 +56,8 @@ Anyway, you need to use your system's command line console to use this script.
 
 This site will tell you how to install python: https://wiki.python.org/moin/BeginnersGuide/Download
 
+Make sure that you enable "Add python.exe to PATH" on the first installation screen!!
+
 After installing python, you'll need to install some libraries. DON'T PANIC, this is easy.
 Open the console, aka command prompt or terminal.
 Run the following command to install all required libraries:
