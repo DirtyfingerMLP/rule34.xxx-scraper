@@ -16,7 +16,9 @@ logging.basicConfig(
 )
 logger = logging.getLogger()
 
-VERSION = "1.3.5"  # Updated version
+VERSION = "1.3.6"  # Changed how downloaded files are named. new format:
+                   # post_id artist_tags#copyright_tags#character-tags.file_extension
+                   # Old format bloated the filename and wasn't necessary with how default directories are now named
 
 def get_soup(url):
     headers = {'User-Agent': 'Mozilla/5.0'}
@@ -152,8 +154,7 @@ def main():
                     logger.warning(f"No media found for {post_id}, skipping.")
                     continue
                 file_extension = os.path.splitext(media_url.split('?')[0])[-1]
-                #filename = sanitize_filename(f"{post_id} [{' '.join(args.tags)}] {' '.join(artist_tags)}#{' '.join(copyright_tags)}#{' '.join(character_tags)}{file_extension}")
-                filename = sanitize_filename(f"{post_id} [{' '.join(args.tags)}] [{' '.join(artist_tags)}]#{' '.join(copyright_tags)}#{' '.join(character_tags)}"[:250] + file_extension)
+                filename = sanitize_filename(f"{post_id} {' '.join(artist_tags)}#{' '.join(copyright_tags)}#{' '.join(character_tags)}"[:250] + file_extension)
 
                 print(f"Downloading {filename}")
                 download_file(media_url, filename, args.download_dir)
