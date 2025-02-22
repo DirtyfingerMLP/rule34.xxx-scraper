@@ -82,20 +82,26 @@ If you're impatient, just try one of the usage examples listed at the top.
 The parameters are:
 ```
 -h                    Help. not that helpful at the moment. maybe later.
--f or --file          Let's you choose your own name and location for the csv file.
-                      Useful if you automate stuff and want to separate tag files for different folders.
+-f or --file          Let's you choose your own name and location for the
+                      csv file. Useful if you automate stuff and want to
+                      separate tag files for different folders.
 -d or --download_dir  Specify your desired download folder for this search.
-                      It defaults to whatever your search terms were, which is not always optimal.
--l or --limit         The amount of files you download in one go. It defaults to 42 (one entire page)
-                      because we wouldn't want to start a gigabyte-sized download by accident, eh?
--s or --start         By default, you start downloading with the first (i.e. the newest) file.
-                      The first file has the number 0. It's a coder thing. 
-                      If you want to start downloading while skipping the newest files, just specify
-                      the number where you want to start.
-tags                  Every word you type in that doesn't have a leading '-' will be considered a search tag.
-                      The tags are the same as on the website, so create your perfect search-tags there.
-                      You can put them in "quotation marks", but you don't need to, unless you use
-                      exclusion tags (e.g. "-guro" if you don't want to download guro).
+                      It defaults to whatever your search terms were,
+                      which is not always optimal.
+-l or --limit         The amount of files you download in one go. It
+                      defaults to 42 (one entire page) because we wouldn't
+                      want to start a gigabyte-sized download by accident, eh?
+-s or --start         By default, you start downloading with the first
+                      (i.e. the newest) file. The first file has the number 0.
+                      It's a coder thing. If you want to start downloading
+                      while skipping the newest files, just specify the
+                      number where you want to start.
+tags                  Every word you type in that doesn't have a leading
+                      '-' will be considered a search tag. The tags are the
+                      same as on the website, so create your perfect
+                      search-tags there. You can put the tags in "quotation
+                      marks" but you don't need to, unless you use exclusion
+                      tags (e.g. "-guro" if you don't want to download guro).
                       For clarity, put the search tags last.
 ```
 
@@ -111,7 +117,7 @@ Enjoy!
 PS:
 If you thought that was useful and want to say thanks - I have a patreon where you can give me all your money!
 It's about My Little Pony PMVs (I know, I know) and I understand if you don't want to donate because you don't
-want to answer pointed questions to whoever can see your patreon membership status, but right now it's the 
+want to answer pointed questions to whomever can see your patreon membership status, but right now it's the 
 only thing I have set up.
 
 https://www.patreon.com/c/Dirtyfinger
