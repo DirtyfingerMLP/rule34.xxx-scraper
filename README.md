@@ -1,3 +1,7 @@
+
+[script demo safe.webm](https://github.com/user-attachments/assets/4b371d98-f066-460e-a501-b993b8826d57)
+
+
 ## Introduction
 This is a simple command-line tool to batch download images and videos from [rule34.xxx](https://rule34.xxx/).
 
