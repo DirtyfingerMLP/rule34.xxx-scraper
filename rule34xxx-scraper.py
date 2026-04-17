@@ -5,6 +5,7 @@ import argparse
 import re
 import csv
 import logging
+import time
 from datetime import datetime
 
 # Configure logging
@@ -16,9 +17,31 @@ logging.basicConfig(
 )
 logger = logging.getLogger()
 
-VERSION = "1.3.6"  # Changed how downloaded files are named. new format:
-                   # post_id artist_tags#copyright_tags#character-tags.file_extension
-                   # Old format bloated the filename and wasn't necessary with how default directories are now named
+VERSION = "1.3.7"   # 1.3.7 Added rate limiter
+                    #       Added progress output
+                    # 1.3.6 Changed how downloaded files are named. new format:
+                    #       post_id artist_tags#copyright_tags#character-tags.file_extension
+                    #       Old format bloated the filename and wasn't necessary with how default directories are now named
+                   
+class RequestThrottler:    
+    def __init__(self, requests_per_second=1):
+        self.min_interval = 1.0 / requests_per_second
+        self.last_request_time = None
+    
+    def __enter__(self):
+        self.start_time = time.time()
+        return self
+    
+    def __exit__(self, exc_type, exc_val, exc_tb):
+        elapsed = time.time() - self.start_time
+        delay=0
+        if elapsed < self.min_interval:
+            delay = self.min_interval - elapsed
+            time.sleep(delay)
+        self.last_request_time = time.time()
+
+        # Print timing info
+        print(f"Time elapsed: {elapsed:.3f}s     Time throttled by: {delay:.3f}s")        
 
 def get_soup(url):
     headers = {'User-Agent': 'Mozilla/5.0'}
@@ -105,8 +128,23 @@ def main():
     parser.add_argument('-d', '--download_dir', help='Directory to save files')
     parser.add_argument('-l', '--limit', type=int, default=42, help='Limit of results')
     parser.add_argument('-s', '--start', type=int, default=0, help='Starting pid for pagination')
-
+    parser.add_argument('-rps', '--requests_per_second', type=float, default=None, help='Max requests per second (default 1)')
+    parser.add_argument('-rpm', '--requests_per_minute', type=float, default=None, help='Max requests per minute (default 60)')
+                    
     args = parser.parse_args()
+    
+    # Handle rate limiting parameters
+    if args.requests_per_second is not None and args.requests_per_minute is not None:    
+        parser.error("Cannot specify both -rps and -rpm. They are mutually exclusive.")
+    elif args.requests_per_minute is not None:
+        rps = args.requests_per_minute / 60.0
+    elif args.requests_per_second is not None:
+        rps = args.requests_per_second
+    else:
+        rps = 1.0  # default
+
+    throttler = RequestThrottler(rps)   # initializing the request throttler
+    
     tag_string = ' '.join(args.tags)
     args.file = args.file or f'{tag_string}.csv'
     if not args.file.endswith(".csv"): args.file += (".csv")
@@ -122,7 +160,9 @@ def main():
         logger.info(f"Fetching gallery page: {gallery_url}")
         print(f"Fetching gallery page: {gallery_url}")
         
-        gallery_soup = get_soup(gallery_url)
+        with throttler:                             # same as before, but using request throttler
+            gallery_soup = get_soup(gallery_url)
+            
         if not gallery_soup:
             break
         
@@ -141,7 +181,7 @@ def main():
             full_url = requests.compat.urljoin(gallery_url, href)
             
             logger.info(f"Fetching post {post_id}")
-            print(f"Fetching {post_id}")
+            print(f"Fetching {post_id} ({fetch_count+1}/{args.limit})")
             duplicate = file_exists(args.download_dir, post_id)
             
             if duplicate:
@@ -149,7 +189,9 @@ def main():
                 print(f"Skipping - duplicate found: {duplicate}")
                 results.append([post_id, "", "skipped", "", "", "", "", "", duplicate])
             else:
-                media_url, copyright_tags, character_tags, artist_tags, general_tags, meta_tags, post_date = get_media_page_data(full_url)
+                with throttler:     # same as before, but using request throttler
+                    media_url, copyright_tags, character_tags, artist_tags, general_tags, meta_tags, post_date = get_media_page_data(full_url)
+                    
                 if not media_url:
                     logger.warning(f"No media found for {post_id}, skipping.")
                     continue
@@ -157,12 +199,15 @@ def main():
                 filename = sanitize_filename(f"{post_id} {' '.join(artist_tags)}#{' '.join(copyright_tags)}#{' '.join(character_tags)}"[:250] + file_extension)
 
                 print(f"Downloading {filename}")
-                download_file(media_url, filename, args.download_dir)
+                
+                with throttler:     # same as before, but using request throttler
+                    download_file(media_url, filename, args.download_dir)
+                    
                 download_date = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
                 results.append([post_id, post_date, download_date, ', '.join(copyright_tags), ', '.join(character_tags), ', '.join(artist_tags), ', '.join(general_tags), ', '.join(meta_tags), filename])
             fetch_count += 1
         write_to_csv(args.file, results)
-        page_start += 42
+        page_start += 42    # Each page has 42 entries. Why 42? Because we are old.
 
     logger.info("Script completed successfully.")
 
