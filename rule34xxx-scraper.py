@@ -70,7 +70,7 @@ def get_post_date(soup):
 def get_media_page_data(url):
     soup = get_soup(url)
     if not soup:
-        return None, None, [], [], [], [], [], "Unknown"
+        return None, [], [], [], [], [], "Unknown" # in case of error return "None, [], [], [], [], [], "Unknown""; NOT "None, None, [], [], [], [], [], "Unknown" (error in upstream code)
     
     media_url = soup.find("a", string=re.compile(r'Original\s*image', re.I))['href']
     copyright_tags = extract_tags(soup, 'copyright')
